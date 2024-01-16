@@ -7,15 +7,15 @@ on:
 
 jobs:
   push-html:
-  runs-on: ubuntu-latest
-  permissions:
-      contents: write
-  steps:
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.12"
-    - uses: actions/checkout@v4
-    - run: python3 -m pip install PyGithub
-    - name: Build and push HTML
-      uses: python3 .github/scripts/make_and_upload_html.py ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install PyGithub
+      - name: Build and push HTML
+        uses: python3 .github/scripts/make_and_upload_html.py ${{ secrets.GITHUB_TOKEN }}
