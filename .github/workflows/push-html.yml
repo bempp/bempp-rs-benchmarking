@@ -7,7 +7,7 @@ on:
 
 jobs:
   push-html:
-  runs-on: ubunut-latest
+  runs-on: ubuntu-latest
   permissions:
       contents: write
   steps:
