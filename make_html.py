@@ -2,6 +2,20 @@ import github
 import json
 import os
 
+
+def to_seconds(time, unit):
+    if unit == "ns":
+        return time / 10**9
+    if unit == "μs":
+        return time / 10**6
+    if unit == "ms":
+        return time / 10**3
+    if unit == "s":
+        return time
+
+    raise ValueError(f"Unsupported unit: {unit}")
+
+
 root_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(root_dir, "data.json")) as f:
     data = json.load(f)
@@ -15,7 +29,9 @@ print("<script type='text/javascript'>")
 for i, b in enumerate(benches):
     print(f"var line{i} = {{")
     print("  x: [" + ", ".join([f"\"{j['date']}\"" for j in data[b]]) + "],")
-    print("  y: [" + ", ".join([f"{j['mean']['estimate']}" for j in data[b]]) + "],")
+    print("  y: [" + ", ".join([
+        f"{to_seconds(j['mean']['estimate'], j['mean']['unit'])}"
+        for j in data[b]]) + "],")
     print("  type: 'scatter',")
     print("  mode: 'lines+markers',")
     print(f"  name: \"{b}\"")
@@ -23,7 +39,9 @@ for i, b in enumerate(benches):
 
 print("var layout = {")
 print("  showlegend: true,")
-print("  legend: {\"orientation\": \"h\"}")
+print("  legend: {\"x\": 1, \"xanchor\": \"right\", \"y\": 1},")
+print("  xaxis: {\"title\": \"Date\"},")
+print("  yaxis: {\"title\": \"Time (s)\"}")
 print("};")
 
 print("Plotly.newPlot('benchall', "
