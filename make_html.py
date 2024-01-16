@@ -39,9 +39,10 @@ for i, b in enumerate(benches):
 
 print("var layout = {")
 print("  showlegend: true,")
-print("  legend: {\"x\": 1, \"xanchor\": \"right\", \"y\": 1},")
-print("  xaxis: {\"title\": \"Date\"},")
-print("  yaxis: {\"title\": \"Time (s)\"}")
+print("  height: 650,")
+print("  legend: {x: 1, yanchor: 'top', xanchor: 'right', y: -0.2},")
+print("  xaxis: {title: 'Date'},")
+print("  yaxis: {title: 'Time (s)'}")
 print("};")
 
 print("Plotly.newPlot('benchall', "
