@@ -37,5 +37,3 @@ r.update_file("data.json", "Upload benchmark results", json.dumps(data), sha=fil
 
 with open("new.json", "w") as f:
     json.dump({}, f)
-
-print(data)
