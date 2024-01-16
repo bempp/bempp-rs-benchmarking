@@ -1,1 +1,1 @@
-{}
+{"assembly/Assembly of non-singular terms of 512x512 matrix": [{"date": "2024-01-16 14:37", "mean": {"estimate": 40479753.59066327, "lower_bound": 39708620.307420075, "upper_bound": 41225389.70226144, "unit": "ns"}}], "assembly/Assembly of non-singular terms of 2048x2048 matrix": [{"date": "2024-01-16 14:37", "mean": {"estimate": 580320565.2, "lower_bound": 575868301.825, "upper_bound": 584532116.05, "unit": "ns"}}]}
