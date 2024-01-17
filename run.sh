@@ -3,14 +3,17 @@
 if [[ -z "$PYTHON" ]]; then
   PYTHON="python3"
 fi
+if [[ -z "$CARGO" ]]; then
+  CARGO="cargo"
+fi
 git pull && \
 cd bempp-rs && \
 git pull && \
-cargo update && \
-cargo criterion --message-format json > output.json && \
+$CARGO update && \
+$CARGO criterion --message-format json > output.json && \
 cd .. && \
-python3 process_results.py && \
-python3 push.py && \
+$PYTHON process_results.py && \
+$PYTHON push.py && \
 git pull && \
-python3 make_html.py > plots.html && \
-python3 update_website.py plots.html
+$PYTHON make_html.py > plots.html && \
+$PYTHON update_website.py plots.html
