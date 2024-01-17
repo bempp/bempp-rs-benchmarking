@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-date = datetime.now().strftime("%Y-%m-%d %H:%M")
+date = datetime.now().strftime("%Y-%m-%d")
 
 data = {}
 with open("bempp-rs/output.json") as f:
