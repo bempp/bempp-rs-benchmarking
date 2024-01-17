@@ -1,5 +1,8 @@
 #!/bin/bash
 
+if [[ -z "$PYTHON" ]]; then
+  PYTHON="python3"
+fi
 git pull && \
 cd bempp-rs && \
 git pull && \
