@@ -2,6 +2,9 @@ import github
 import json
 import os
 
+# List of benchmarks to exclude from website
+exclude = []
+
 
 def to_seconds(time, unit):
     if unit == "ns":
@@ -20,7 +23,7 @@ root_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(root_dir, "data.json")) as f:
     data = json.load(f)
 
-benches = list(data.keys())
+benches = [b for b in data.keys() if b not in exclude]
 benches.sort()
 
 print("<div id='benchall'></div>")
