@@ -42,7 +42,7 @@ print("  showlegend: true,")
 print("  height: 650,")
 print("  legend: {x: 1, yanchor: 'top', xanchor: 'right', y: -0.2},")
 print("  xaxis: {title: 'Date'},")
-print("  yaxis: {title: 'Time (s)'},")
+print("  yaxis: {title: 'Time (s)', rangemode: 'tozero'},")
 print("  margin: {t: 15}")
 print("};")
 
