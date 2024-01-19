@@ -4,6 +4,8 @@ import os
 
 # List of benchmarks to exclude from website
 exclude = []
+# Include error bars?
+error_bars = false
 
 
 def to_seconds(time, unit):
@@ -35,6 +37,19 @@ for i, b in enumerate(benches):
     print("  y: [" + ", ".join([
         f"{to_seconds(j['mean']['estimate'], j['mean']['unit'])}"
         for j in data[b]]) + "],")
+    if error_bars:
+        print("  error_y: {")
+        print("    type: 'data',")
+        print("    symmetric: false,")
+        print("    array: [" + ", ".join([
+            f"{to_seconds(j['mean']['upper_bound'] - j['mean']['estimate'], j['mean']['unit'])}"
+            for j in data[b]
+        ]) + "],")
+        print("    arrayminus: [" + ", ".join([
+            f"{to_seconds(j['mean']['estimate'] - j['mean']['lower_bound'], j['mean']['unit'])}"
+            for j in data[b]
+        ]) + "]")
+        print("  },")
     print("  type: 'scatter',")
     print("  mode: 'lines+markers',")
     print(f"  name: \"{b}\"")
