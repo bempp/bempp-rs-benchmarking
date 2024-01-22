@@ -43,5 +43,5 @@ jobs:
         run: python3 make_html.py
       - name: Run make_html.py with new data
         run: |
-          mv new.json data.json
+          python3 .github/scripts/update_data.py
           python3 make_html.py
