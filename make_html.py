@@ -8,6 +8,8 @@ error_bars = False
 
 
 def to_seconds(time, unit):
+    if unit == "ps":
+        return time / 10**12
     if unit == "ns":
         return time / 10**9
     if unit == "μs":
