@@ -1,4 +1,3 @@
-import github
 import json
 import os
 

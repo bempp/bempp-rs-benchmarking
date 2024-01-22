@@ -1,5 +1,4 @@
 import sys
-import json
 import github
 
 assert len(sys.argv) == 2

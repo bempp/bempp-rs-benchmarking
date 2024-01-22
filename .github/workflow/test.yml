@@ -1,0 +1,44 @@
+name: 🧪
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test benchmarking scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v3
+      - name: Move test-benchmark-code to bempp-rs
+        run: mv test-benchmark-code bempp-rs
+
+      - name: Style checks
+        run: |
+          python3 -m pip install flake8
+          python3 -m flake8 .
+
+      - name: setup
+        run: cargo install cargo-criterion
+
+      - name: Run test benchmarks
+        run: |
+          cd bempp-rs
+          criterion --message-format json > output.json
+      - name: Run process_results.py
+        run: python3 process_results.py
+
+      - name: Run make_html.py
+        run: python3 make_html.py

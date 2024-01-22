@@ -3,3 +3,9 @@
 new.json
 bempp-rs/
 plots.html
+
+*.lock
+*/target/
+
+.*.swp
+*.html

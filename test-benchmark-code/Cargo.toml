@@ -1,0 +1,21 @@
+[package]
+name = "test-benchmark"
+version = "0.1.0"
+edition = "2021"
+authors = ["Matthew Scroggs <matthew.w.scroggs@gmail.com>"]
+description = "Benchmark tester"
+license = "BSD-3-Clause"
+homepage = "https://github.com/bempp/bempp-rs-benchmarking"
+repository = "https://github.com/bempp/bempp-rs-benchmarking"
+
+[lib]
+name = "test_benchmark"
+crate-type = ["lib", "cdylib"]
+
+[dev-dependencies]
+criterion = { version = "0.3", features = ["html_reports"]}
+
+[[bench]]
+name = "test"
+harness = false
+
