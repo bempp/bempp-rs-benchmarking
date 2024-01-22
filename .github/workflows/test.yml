@@ -36,7 +36,7 @@ jobs:
       - name: Run test benchmarks
         run: |
           cd bempp-rs
-          criterion --message-format json > output.json
+          cargo criterion --message-format json > output.json
       - name: Run process_results.py
         run: python3 process_results.py
 
