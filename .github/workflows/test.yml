@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
       - uses: actions/checkout@v3
       - name: Move test-benchmark-code to bempp-rs
         run: mv test-benchmark-code bempp-rs
