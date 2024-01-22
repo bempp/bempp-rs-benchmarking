@@ -5,7 +5,7 @@ import os
 # List of benchmarks to exclude from website
 exclude = []
 # Include error bars?
-error_bars = false
+error_bars = False
 
 
 def to_seconds(time, unit):
