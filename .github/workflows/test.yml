@@ -37,6 +37,8 @@ jobs:
         run: |
           cd bempp-rs
           cargo criterion --message-format json > output.json
+          cd ../kifmm
+          cargo criterion --message-format json > output.json
       - name: Run process_results.py
         run: python3 process_results.py
       - name: Run make_html.py
