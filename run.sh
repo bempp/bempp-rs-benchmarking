@@ -12,6 +12,11 @@ git pull && \
 $CARGO update && \
 $CARGO criterion --message-format json > output.json && \
 cd .. && \
+cd kifmm && \
+git pull && \
+$CARGO update && \
+$CARGO criterion --message-format json > output.json && \
+cd .. && \
 $PYTHON process_results.py && \
 $PYTHON push.py && \
 git pull && \
