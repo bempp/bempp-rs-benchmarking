@@ -22,8 +22,10 @@ jobs:
         with:
           python-version: "3.12"
       - uses: actions/checkout@v3
-      - name: Move test-benchmark-code to bempp-rs
-        run: mv test-benchmark-code bempp-rs
+      - name: Move test-benchmark-code to bempp-rs and kifmm
+        run: |
+          cp -r test-benchmark-code kifmm
+          mv test-benchmark-code bempp-rs
 
       - name: Style checks
         run: |
