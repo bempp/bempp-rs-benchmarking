@@ -2,7 +2,12 @@ import json
 import os
 
 # List of benchmarks to exclude from website
-exclude = []
+exclude = [
+    "Helmholtz Potentials f32/M2L=FFT, N=1000000, wavenumber=0.0000001",
+    "Helmholtz Potentials f32/M2L=BLAS, N=1000000, wavenumber=0.0000001",
+    "Helmholtz Gradients f32/M2L=FFT, N=1000000, wavenumber=0.0000001",
+    "Helmholtz Gradients f32/M2L=BLAS, N=1000000, wavenumber=0.0000001"
+]
 # Include error bars?
 error_bars = False
 
