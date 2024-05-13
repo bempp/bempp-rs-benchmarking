@@ -1,5 +1,8 @@
 import json
 import os
+import sys
+
+test = "test" in sys.argv
 
 # List of benchmarks to exclude from website
 exclude = [
@@ -34,6 +37,13 @@ def to_seconds(time, unit):
     raise ValueError(f"Unsupported unit: {unit}")
 
 
+if test:
+    print("<html>")
+    print("<head>")
+    print('<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>')
+    print("</head>")
+    print("<body>")
+
 root_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(root_dir, "data.json")) as f:
     data = json.load(f)
@@ -46,7 +56,8 @@ for title, start in plots:
 
     remove = []
     lines = []
-    for i, b in enumerate(benches):
+    i = 0
+    for b in benches:
         if start is None or b.startswith(start):
             lines.append(f"var line{i}_{id} = {{")
             lines.append("  x: [" + ", ".join([f"\"{j['date']}\"" for j in data[b]]) + "],")
@@ -68,9 +79,13 @@ for title, start in plots:
             lines.append("  mode: 'lines+markers',")
             lines.append(f"  name: \"{b}\"")
             lines.append("};")
+
+            i += 1
             remove.append(b)
+
     for b in remove:
         benches.remove(b)
+
     if len(lines) > 0:
         print(f"<h3>{title}</h3>")
         print(f"<div id='bench_{id}'></div>")
@@ -88,6 +103,10 @@ for title, start in plots:
         print("};")
 
         print(f"Plotly.newPlot('bench_{id}', "
-              "[" + ", ".join([f"line{i}_{id}" for i, _ in enumerate(benches)]) + "], "
+              "[" + ", ".join([f"line{j}_{id}" for j in range(i)]) + "], "
               "layout);")
         print("</script>")
+
+if test:
+    print("</body>")
+    print("</html>")
