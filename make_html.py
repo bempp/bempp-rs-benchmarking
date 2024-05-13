@@ -57,14 +57,12 @@ for title, start in plots:
                 lines.append("  error_y: {")
                 lines.append("    type: 'data',")
                 lines.append("    symmetric: false,")
-                lines.append("    array: [" + ", ".join([
-                    f"{to_seconds(j['mean']['upper_bound'] - j['mean']['estimate'], j['mean']['unit'])}"
-                    for j in data[b]
-                ]) + "],")
-                lines.append("    arrayminus: [" + ", ".join([
-                    f"{to_seconds(j['mean']['estimate'] - j['mean']['lower_bound'], j['mean']['unit'])}"
-                    for j in data[b]
-                ]) + "]")
+                lines.append("    array: [" + ", ".join([str(
+                    to_seconds(j['mean']['upper_bound'] - j['mean']['estimate'], j['mean']['unit'])
+                ) for j in data[b]]) + "],")
+                lines.append("    arrayminus: [" + ", ".join([str(
+                    to_seconds(j['mean']['estimate'] - j['mean']['lower_bound'], j['mean']['unit'])
+                ) for j in data[b]]) + "]")
                 lines.append("  },")
             lines.append("  type: 'scatter',")
             lines.append("  mode: 'lines+markers',")
