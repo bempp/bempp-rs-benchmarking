@@ -11,6 +11,13 @@ exclude = [
 # Include error bars?
 error_bars = False
 
+plots = [
+    ["Assembly", "assembly/"],
+    ["Laplace FMM", "Laplace "],
+    ["Helmholtz FMM", "Helmholtz"],
+    ["Other", None],
+]
+
 
 def to_seconds(time, unit):
     if unit == "ps":
@@ -34,43 +41,55 @@ with open(os.path.join(root_dir, "data.json")) as f:
 benches = [b for b in data.keys() if b not in exclude]
 benches.sort()
 
-print("<div id='benchall'></div>")
+for title, start in plots:
+    id = title.lower().replace(" ", "_")
 
-print("<script type='text/javascript'>")
-for i, b in enumerate(benches):
-    print(f"var line{i} = {{")
-    print("  x: [" + ", ".join([f"\"{j['date']}\"" for j in data[b]]) + "],")
-    print("  y: [" + ", ".join([
-        f"{to_seconds(j['mean']['estimate'], j['mean']['unit'])}"
-        for j in data[b]]) + "],")
-    if error_bars:
-        print("  error_y: {")
-        print("    type: 'data',")
-        print("    symmetric: false,")
-        print("    array: [" + ", ".join([
-            f"{to_seconds(j['mean']['upper_bound'] - j['mean']['estimate'], j['mean']['unit'])}"
-            for j in data[b]
-        ]) + "],")
-        print("    arrayminus: [" + ", ".join([
-            f"{to_seconds(j['mean']['estimate'] - j['mean']['lower_bound'], j['mean']['unit'])}"
-            for j in data[b]
-        ]) + "]")
-        print("  },")
-    print("  type: 'scatter',")
-    print("  mode: 'lines+markers',")
-    print(f"  name: \"{b}\"")
-    print("};")
+    remove = []
+    lines = []
+    for i, b in enumerate(benches):
+        if start is None or b.startswith(start):
+            lines.append(f"var line{i}_{id} = {{")
+            lines.append("  x: [" + ", ".join([f"\"{j['date']}\"" for j in data[b]]) + "],")
+            lines.append("  y: [" + ", ".join([
+                f"{to_seconds(j['mean']['estimate'], j['mean']['unit'])}"
+                for j in data[b]]) + "],")
+            if error_bars:
+                lines.append("  error_y: {")
+                lines.append("    type: 'data',")
+                lines.append("    symmetric: false,")
+                lines.append("    array: [" + ", ".join([
+                    f"{to_seconds(j['mean']['upper_bound'] - j['mean']['estimate'], j['mean']['unit'])}"
+                    for j in data[b]
+                ]) + "],")
+                lines.append("    arrayminus: [" + ", ".join([
+                    f"{to_seconds(j['mean']['estimate'] - j['mean']['lower_bound'], j['mean']['unit'])}"
+                    for j in data[b]
+                ]) + "]")
+                lines.append("  },")
+            lines.append("  type: 'scatter',")
+            lines.append("  mode: 'lines+markers',")
+            lines.append(f"  name: \"{b}\"")
+            lines.append("};")
+            remove.append(b)
+    for b in remove:
+        benches.remove(b)
+    if len(lines) > 0:
+        print(f"<h3>{title}</h3>")
+        print(f"<div id='bench_{id}'></div>")
 
-print("var layout = {")
-print("  showlegend: true,")
-print("  height: 650,")
-print("  legend: {x: 1, yanchor: 'top', xanchor: 'right', y: -0.2},")
-print("  xaxis: {title: 'Date'},")
-print("  yaxis: {title: 'Time (s)', rangemode: 'tozero'},")
-print("  margin: {t: 15}")
-print("};")
+        print("<script type='text/javascript'>")
+        print("\n".join(lines))
 
-print("Plotly.newPlot('benchall', "
-      "[" + ", ".join([f"line{i}" for i, _ in enumerate(benches)]) + "], "
-      "layout);")
-print("</script>")
+        print("var layout = {")
+        print("  showlegend: true,")
+        print("  height: 650,")
+        print("  legend: {x: 1, yanchor: 'top', xanchor: 'right', y: -0.2},")
+        print("  xaxis: {title: 'Date'},")
+        print("  yaxis: {title: 'Time (s)', rangemode: 'tozero'},")
+        print("  margin: {t: 15}")
+        print("};")
+
+        print(f"Plotly.newPlot('bench_{id}', "
+              "[" + ", ".join([f"line{i}_{id}" for i, _ in enumerate(benches)]) + "], "
+              "layout);")
+        print("</script>")
