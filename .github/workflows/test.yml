@@ -43,8 +43,6 @@ jobs:
           cargo criterion --message-format json > output.json
       - name: Run process_results.py
         run: python3 process_results.py
-      - name: Run make_html.py
-        run: python3 make_html.py
       - name: Run make_html.py with new data
         run: |
           python3 .github/scripts/update_data.py
