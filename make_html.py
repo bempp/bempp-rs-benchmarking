@@ -44,13 +44,10 @@ annotations = []
 r = g.get_repo("bempp/bempp-rs")
 for release in r.get_releases():
     date = release.created_at.strftime("%Y-%m-%d")
-    shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}',"
-                  "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
-    annotations.append(f"{{showarrow: false, text: 'Bempp {release.title}', xref: 'x', "
-                       f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', "
-                       "textangle: 90}")
-bempp_releases = "  shapes: [" + ", ".join(shapes) + "],\n"
-bempp_releases += "  annotations: [" + ", ".join(annotations) + "]"
+    shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', y0: 0, y1: 1, line: {{color: '#000000', width: 1, dash: 'dash'}}}}")
+    annotations.append(f"{{showarrow: false, text: 'Bempp {release.title}', xref: 'x', yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', textangle: 90}}")
+bempp_releases = f"  shapes: [" + ", ".join(shapes) + "],\n"
+bempp_releases += f"  annotations: [" + ", ".join(annotations) + "]"
 
 # Get Kifmm releases
 shapes = []
@@ -58,13 +55,10 @@ annotations = []
 r = g.get_repo("bempp/kifmm")
 for release in r.get_releases():
     date = release.created_at.strftime("%Y-%m-%d")
-    shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}',"
-                  "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
-    annotations.append(f"{{showarrow: false, text: 'Kifmm {release.title}', xref: 'x', "
-                       f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', "
-                       "textangle: 90}")
-kifmm_releases = "  shapes: [" + ", ".join(shapes) + "],\n"
-kifmm_releases += "  annotations: [" + ", ".join(annotations) + "]"
+    shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', y0: 0, y1: 1, line: {{color: '#000000', width: 1, dash: 'dash'}}}}")
+    annotations.append(f"{{showarrow: false, text: 'Kifmm {release.title}', xref: 'x', yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', textangle: 90}}")
+kifmm_releases = f"  shapes: [" + ", ".join(shapes) + "],\n"
+kifmm_releases += f"  annotations: [" + ", ".join(annotations) + "]"
 
 
 def to_seconds(time, unit):
