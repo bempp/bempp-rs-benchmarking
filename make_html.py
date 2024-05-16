@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import github
 
 test = "test" in sys.argv
 
@@ -15,11 +16,49 @@ exclude = [
 error_bars = False
 
 plots = [
-    ["Assembly", "assembly/"],
-    ["Laplace FMM", "Laplace "],
-    ["Helmholtz FMM", "Helmholtz"],
-    ["Other", None],
+    ["Assembly", "assembly/", "Bempp"],
+    ["Laplace FMM", "Laplace ", "Kifmm"],
+    ["Helmholtz FMM", "Helmholtz", "Kifmm"],
+    ["Other", None, None],
 ]
+
+with open("key.pem") as f:
+    key = f.read()
+
+with open("info.private") as f:
+    content = f.read()
+    app_id = int(content.split("\n")[0].split()[-1])
+    id = int(content.split("\n")[1].split()[-1])
+
+gi = github.GithubIntegration(auth=github.Auth.AppAuth(app_id, key))
+for i in gi.get_installations():
+    if i.id == id:
+        g = i.get_github_for_installation()
+        break
+else:
+    raise RuntimeError()
+
+# Get Bempp-rs releases
+shapes = []
+annotations = []
+r = g.get_repo("bempp/bempp-rs")
+for release in r.get_releases():
+    date = release.created_at.strftime("%Y-%m-%d")
+    shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', y0: 0, y1: 1, line: {{color: '#000000', width: 1, dash: 'dash'}}}}")
+    annotations.append(f"{{showarrow: false, text: 'Bempp {release.title}', xref: 'x', yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', textangle: 90}}")
+bempp_releases = f"  shapes: [" + ", ".join(shapes) + "],\n"
+bempp_releases += f"  annotations: [" + ", ".join(annotations) + "]"
+
+# Get Kifmm releases
+shapes = []
+annotations = []
+r = g.get_repo("bempp/kifmm")
+for release in r.get_releases():
+    date = release.created_at.strftime("%Y-%m-%d")
+    shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', y0: 0, y1: 1, line: {{color: '#000000', width: 1, dash: 'dash'}}}}")
+    annotations.append(f"{{showarrow: false, text: 'Kifmm {release.title}', xref: 'x', yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', textangle: 90}}")
+kifmm_releases = f"  shapes: [" + ", ".join(shapes) + "],\n"
+kifmm_releases += f"  annotations: [" + ", ".join(annotations) + "]"
 
 
 def to_seconds(time, unit):
@@ -51,7 +90,7 @@ with open(os.path.join(root_dir, "data.json")) as f:
 benches = [b for b in data.keys() if b not in exclude]
 benches.sort()
 
-for title, start in plots:
+for title, start, releases in plots:
     id = title.lower().replace(" ", "_")
 
     remove = []
@@ -99,7 +138,14 @@ for title, start in plots:
         print("  legend: {x: 1, yanchor: 'top', xanchor: 'right', y: -0.2},")
         print("  xaxis: {title: 'Date'},")
         print("  yaxis: {title: 'Time (s)', rangemode: 'tozero'},")
-        print("  margin: {t: 15}")
+        print("  margin: {t: 15}" + ("" if releases is None else ","))
+        if releases == "Bempp":
+            print(bempp_releases)
+        elif releases == "Kifmm":
+            print(kifmm_releases)
+        else:
+            assert releases is None
+
         print("};")
 
         print(f"Plotly.newPlot('bench_{id}', "
