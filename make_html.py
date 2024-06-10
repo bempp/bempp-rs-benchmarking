@@ -43,7 +43,7 @@ try:
                       "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
         annotations.append(f"{{showarrow: false, text: 'Bempp {release.title}', xref: 'x', "
                            f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', "
-                           "textangle: 90}}")
+                           "textangle: 90}")
     bempp_releases = "  shapes: [" + ", ".join(shapes) + "],\n"
     bempp_releases += "  annotations: [" + ", ".join(annotations) + "]"
 
