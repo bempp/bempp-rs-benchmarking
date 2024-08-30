@@ -1,3 +1,5 @@
+from abc import ABC, abstractproperty
+import typing
 import json
 import os
 import sys
@@ -11,8 +13,6 @@ exclude = [
     "Helmholtz Gradients f32/M2L=FFT, N=1000000, wavenumber=0.0000001",
     "Helmholtz Gradients f32/M2L=BLAS, N=1000000, wavenumber=0.0000001"
 ]
-# Include error bars?
-error_bars = False
 
 try:
     import github
@@ -34,42 +34,37 @@ try:
         raise RuntimeError()
 
     # Get Bempp-rs releases
-    shapes = []
-    annotations = []
+    bempp_shapes = []
+    bempp_annotations = []
     r = g.get_repo("bempp/bempp-rs")
     for release in r.get_releases():
         date = release.created_at.strftime("%Y-%m-%d")
-        shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', "
-                      "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
-        annotations.append(f"{{showarrow: false, text: 'Bempp {release.title}', xref: 'x', "
-                           f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', "
-                           "textangle: 90}")
-    bempp_releases = "  shapes: [" + ", ".join(shapes) + "],\n"
-    bempp_releases += "  annotations: [" + ", ".join(annotations) + "]"
+        bempp_shapes.append(
+            f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', "
+            "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
+        bempp_annotations.append(
+            f"{{showarrow: false, text: 'Bempp {release.title}', xref: 'x', "
+            f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', textangle: 90}}")
 
     # Get Kifmm releases
-    shapes = []
-    annotations = []
+    kifmm_shapes = []
+    kifmm_annotations = []
     r = g.get_repo("bempp/kifmm")
     for release in r.get_releases():
         date = release.created_at.strftime("%Y-%m-%d")
-        shapes.append(f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', "
-                      "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
-        annotations.append(f"{{showarrow: false, text: 'Kifmm {release.title}', xref: 'x', "
-                           f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', "
-                           "textangle: 90}")
-    kifmm_releases = "  shapes: [" + ", ".join(shapes) + "],\n"
-    kifmm_releases += "  annotations: [" + ", ".join(annotations) + "]"
+        kifmm_shapes.append(
+            f"{{type: 'line', xref: 'x', yref: 'paper', x0: '{date}', x1: '{date}', "
+            "y0: 0, y1: 1, line: {color: '#000000', width: 1, dash: 'dash'}}")
+        kifmm_annotations.append(
+            f"{{showarrow: false, text: 'Kifmm {release.title}', xref: 'x', "
+            f"yref: 'paper', x: '{date}', y: 1, xanchor: 'left', yanchor: 'top', textangle: 90}}")
 
 except (ModuleNotFoundError, FileNotFoundError):
     has_github = False
 
-plots = [
-    ["Assembly", "assembly/", "Bempp" if has_github else None],
-    ["Laplace FMM", "Laplace ", "Kifmm" if has_github else None],
-    ["Helmholtz FMM", "Helmholtz", "Kifmm" if has_github else None],
-    ["Other", None, None],
-]
+root_dir = os.path.dirname(os.path.realpath(__file__))
+with open(os.path.join(root_dir, "data.json")) as f:
+    data = json.load(f)
 
 
 def to_seconds(time, unit):
@@ -87,6 +82,125 @@ def to_seconds(time, unit):
     raise ValueError(f"Unsupported unit: {unit}")
 
 
+class AbstractPlotLine(ABC):
+    @abstractproperty
+    def label(self) -> str:
+        """The label on the plot."""
+
+    @abstractproperty
+    def color(self) -> typing.Optional[str]:
+        """Custom colour to use for the line."""
+
+    @abstractproperty
+    def dates(self) -> typing.List[str]:
+        """The dates of each data point."""
+
+    @abstractproperty
+    def times(self) -> typing.List[float]:
+        """The execution time for each data point."""
+
+    @abstractproperty
+    def used(self) -> typing.List[str]:
+        """Labels used by this line."""
+
+
+class PlotLine(AbstractPlotLine):
+    def __init__(self, label, color=None):
+        self._label = label
+        self._color = color
+
+    @property
+    def label(self) -> str:
+        return self._label
+
+    @property
+    def color(self) -> typing.Optional[str]:
+        return self._color
+
+    @property
+    def dates(self) -> typing.List[str]:
+        return [j['date'] for j in data[self._label]]
+
+    @property
+    def times(self) -> typing.List[float]:
+        return [to_seconds(j['mean']['estimate'], j['mean']['unit']) for j in data[self._label]]
+
+    @property
+    def used(self) -> typing.List[str]:
+        return [self._label]
+
+
+class RelabelledPlotLine(PlotLine):
+    def __init__(self, label, new_name, color=None):
+        super().__init__(label, color)
+        self._new_name = new_name
+
+    @property
+    def label(self) -> str:
+        return self._new_name
+
+
+class SumLine(AbstractPlotLine):
+    def __init__(self, lines, label, color=None):
+        self._label = label
+        self._lines = lines
+        self._color = color
+
+    @property
+    def label(self) -> str:
+        return self._label
+
+    @property
+    def color(self) -> typing.Optional[str]:
+        return self._color
+
+    @property
+    def dates(self) -> typing.List[str]:
+        dates = [j['date'] for j in data[self._lines[0]]]
+        for i in self._lines:
+            dates2 = [j['date'] for j in data[i]]
+            dates = [j for j in dates if j in dates2]
+        return dates
+
+    @property
+    def times(self) -> typing.List[float]:
+        dates = self.dates
+        all_data = [{
+            j['date']: to_seconds(j['mean']['estimate'], j['mean']['unit']) for j in data[i]
+        } for i in self._lines]
+        return [sum(i[j] for i in all_data) for j in dates]
+
+    @property
+    def used(self) -> typing.List[str]:
+        return self._lines
+
+
+plots = [
+    [
+        "Assembly", [RelabelledPlotLine(
+            "assembly/Assembly of non-singular terms of 512x512 matrix",
+            "Assembly of non-singular terms of 512x512 matrix"
+        ), RelabelledPlotLine(
+            "assembly/Assembly of singular terms of 512x512 matrix",
+            "Assembly of singular terms of 512x512 matrix"
+        ), RelabelledPlotLine(
+            "assembly/Assembly of non-singular terms of 2048x2048 matrix",
+            "Assembly of non-singular terms of 2048x2048 matrix"
+        ), RelabelledPlotLine(
+            "assembly/Assembly of singular terms of 2048x2048 matrix",
+            "Assembly of singular terms of 2048x2048 matrix"
+        ), SumLine(
+            [
+                "assembly/Assembly of non-singular terms of 2048x2048 matrix",
+                "assembly/Assembly of singular terms of 2048x2048 matrix"
+            ], "Assembly of full 2048x2048 matrix", "#000000"
+        )], "Bempp" if has_github else None, [("Bempp-cl 2048x2048", 0.128, "#000000")]
+    ],
+    # ["Laplace FMM", "Laplace ", "Kifmm" if has_github else None],
+    # ["Helmholtz FMM", "Helmholtz", "Kifmm" if has_github else None],
+    ["Other", None, None, None],
+]
+
 if test:
     print("<html>")
     print("<head>")
@@ -94,54 +208,40 @@ if test:
     print("</head>")
     print("<body>")
 
-root_dir = os.path.dirname(os.path.realpath(__file__))
-with open(os.path.join(root_dir, "data.json")) as f:
-    data = json.load(f)
-
 benches = [b for b in data.keys() if b not in exclude]
 benches.sort()
 
-for title, start, releases in plots:
+for title, lines, releases, hlines in plots:
     id = title.lower().replace(" ", "_")
 
+    if lines is None:
+        lines = [PlotLine(b) for b in benches]
+
     remove = []
-    lines = []
-    i = 0
-    for b in benches:
-        if start is None or b.startswith(start):
-            lines.append(f"var line{i}_{id} = {{")
-            lines.append("  x: [" + ", ".join([f"\"{j['date']}\"" for j in data[b]]) + "],")
-            lines.append("  y: [" + ", ".join([
-                f"{to_seconds(j['mean']['estimate'], j['mean']['unit'])}"
-                for j in data[b]]) + "],")
-            if error_bars:
-                lines.append("  error_y: {")
-                lines.append("    type: 'data',")
-                lines.append("    symmetric: false,")
-                lines.append("    array: [" + ", ".join([str(
-                    to_seconds(j['mean']['upper_bound'] - j['mean']['estimate'], j['mean']['unit'])
-                ) for j in data[b]]) + "],")
-                lines.append("    arrayminus: [" + ", ".join([str(
-                    to_seconds(j['mean']['estimate'] - j['mean']['lower_bound'], j['mean']['unit'])
-                ) for j in data[b]]) + "]")
-                lines.append("  },")
-            lines.append("  type: 'scatter',")
-            lines.append("  mode: 'lines+markers',")
-            lines.append(f"  name: \"{b}\"")
-            lines.append("};")
+    lines_html = []
+    line_ids = []
+    for i, line in enumerate(lines):
+        for u in line.used:
+            if u in benches:
+                benches.remove(u)
+        line_ids.append(f"line{i}_{id}")
+        lines_html.append(f"var {line_ids[-1]} = {{")
+        lines_html.append("  x: [" + ", ".join([f"\"{j}\"" for j in line.dates]) + "],")
+        lines_html.append("  y: [" + ", ".join([f"{j}" for j in line.times]) + "],")
+        lines_html.append("  type: 'scatter',")
+        if line.color is not None:
+            lines_html.append(f"  marker: {{color: '{line.color}'}},")
+            lines_html.append(f"  line: {{color: '{line.color}'}},")
+        lines_html.append("  mode: 'lines+markers',")
+        lines_html.append(f"  name: \"{line.label}\"")
+        lines_html.append("};")
 
-            i += 1
-            remove.append(b)
-
-    for b in remove:
-        benches.remove(b)
-
-    if len(lines) > 0:
+    if len(lines_html) > 0:
         print(f"<h3>{title}</h3>")
         print(f"<div id='bench_{id}'></div>")
 
         print("<script type='text/javascript'>")
-        print("\n".join(lines))
+        print("\n".join(lines_html))
 
         print("var layout = {")
         print("  showlegend: true,")
@@ -149,18 +249,39 @@ for title, start, releases in plots:
         print("  legend: {x: 1, yanchor: 'top', xanchor: 'right', y: -0.2},")
         print("  xaxis: {title: 'Date'},")
         print("  yaxis: {title: 'Time (s)', rangemode: 'tozero'},")
-        print("  margin: {t: 15}" + ("" if releases is None else ","))
+        shapes = []
+        annotations = []
         if releases == "Bempp":
-            print(bempp_releases)
+            shapes += bempp_shapes
+            annotations += bempp_annotations
         elif releases == "Kifmm":
-            print(kifmm_releases)
+            shapes += kifmm_shapes
+            annotations += kifmm_annotations
         else:
             assert releases is None
+
+        if hlines is not None:
+            for label, value, color in hlines:
+                shapes.append(
+                    "{type: 'line', xref: 'paper', yref: 'y', x0: 0, x1: 1, "
+                    f"y0: {value}, y1: {value}, line: {{color: '{color}', width: 1, "
+                    "dash: 'dash'}}")
+                annotations.append(
+                    f"{{showarrow: false, text: '{label}', xref: 'paper', yref: 'y', "
+                    f"x: '1', y: {value}, xanchor: 'right', yanchor: 'bottom', "
+                    f"font: {{color: '{color}'}}}}")
+
+        if len(shapes) == 0:
+            print("  margin: {t: 15}")
+        else:
+            print("  margin: {t: 15},")
+            print("  shapes: [" + ", ".join(shapes) + "],")
+            print("  annotations: [" + ", ".join(annotations) + "]")
 
         print("};")
 
         print(f"Plotly.newPlot('bench_{id}', "
-              "[" + ", ".join([f"line{j}_{id}" for j in range(i)]) + "], "
+              "[" + ", ".join(line_ids) + "], "
               "layout);")
         print("</script>")
 
