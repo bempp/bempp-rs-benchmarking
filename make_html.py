@@ -11,7 +11,63 @@ exclude = [
     "Helmholtz Potentials f32/M2L=FFT, N=1000000, wavenumber=0.0000001",
     "Helmholtz Potentials f32/M2L=BLAS, N=1000000, wavenumber=0.0000001",
     "Helmholtz Gradients f32/M2L=FFT, N=1000000, wavenumber=0.0000001",
-    "Helmholtz Gradients f32/M2L=BLAS, N=1000000, wavenumber=0.0000001"
+    "Helmholtz Gradients f32/M2L=BLAS, N=1000000, wavenumber=0.0000001",
+    "F32 Potentials/M2L=BLAS digits=3 vecs=10",
+    "F32 Potentials/M2L=BLAS digits=3 vecs=5",
+    "F32 Potentials/M2L=BLAS digits=3, M2L vecs=10",
+    "F32 Potentials/M2L=BLAS digits=3, M2L vecs=5",
+    "F32 Potentials/M2L=BLAS digits=3, P2P vecs=10",
+    "F32 Potentials/M2L=BLAS digits=3, P2P vecs=5",
+    "F32 Potentials/M2L=BLAS digits=4 vecs=10",
+    "F32 Potentials/M2L=BLAS digits=4 vecs=5",
+    "F32 Potentials/M2L=BLAS digits=4, M2L vecs=10",
+    "F32 Potentials/M2L=BLAS digits=4, M2L vecs=5",
+    "F32 Potentials/M2L=BLAS digits=4, P2P vecs=10",
+    "F32 Potentials/M2L=BLAS digits=4, P2P vecs=5",
+    "F64 Potentials/M2L=BLAS digits=10 vecs=10",
+    "F64 Potentials/M2L=BLAS digits=10 vecs=5",
+    "F64 Potentials/M2L=BLAS digits=10, M2L vecs=10",
+    "F64 Potentials/M2L=BLAS digits=10, M2L vecs=5",
+    "F64 Potentials/M2L=BLAS digits=10, P2P vecs=10",
+    "F64 Potentials/M2L=BLAS digits=10, P2P vecs=5",
+    "F64 Potentials/M2L=BLAS digits=6 vecs=10",
+    "F64 Potentials/M2L=BLAS digits=6 vecs=5",
+    "F64 Potentials/M2L=BLAS digits=6, M2L vecs=10",
+    "F64 Potentials/M2L=BLAS digits=6, M2L vecs=5",
+    "F64 Potentials/M2L=BLAS digits=6, P2P vecs=10",
+    "F64 Potentials/M2L=BLAS digits=6, P2P vecs=5",
+    "F64 Potentials/M2L=BLAS digits=8 vecs=10",
+    "F64 Potentials/M2L=BLAS digits=8 vecs=5",
+    "F64 Potentials/M2L=BLAS digits=8, M2L vecs=10",
+    "F64 Potentials/M2L=BLAS digits=8, M2L vecs=5",
+    "F64 Potentials/M2L=BLAS digits=8, P2P vecs=10",
+    "F64 Potentials/M2L=BLAS digits=8, P2P vecs=5",
+    "Helmholtz Gradients f32/M2L=BLAS, N=1000000, wavenumber=1",
+    "Helmholtz Gradients f32/M2L=FFT, N=1000000, wavenumber=1",
+    "Helmholtz Gradients mat f32/M2L=BLAS, N=1000000, NVecs=10, wavenumber=1",
+    "Helmholtz Gradients mat f32/M2L=BLAS, N=1000000, NVecs=5, wavenumber=1",
+    "Helmholtz Potentials f32/M2L=BLAS, N=1000000, wavenumber=1",
+    "Helmholtz Potentials f32/M2L=FFT, N=1000000, wavenumber=1",
+    "Helmholtz Potentials mat f32/M2L=BLAS, N=1000000, NVecs=10, wavenumber=1",
+    "Helmholtz Potentials mat f32/M2L=BLAS, N=1000000, NVecs=5, wavenumber=1",
+    "Laplace Gradients f32/M2L=BLAS, N=1000000",
+    "Laplace Gradients f32/M2L=FFT, N=1000000",
+    "Laplace Gradients mat f32/M2L=BLAS, N=1000000, NVecs=10",
+    "Laplace Gradients mat f32/M2L=BLAS, N=1000000, NVecs=5",
+    "Laplace Potentials f32/M2L=BLAS, N=1000000",
+    "Laplace Potentials f32/M2L=FFT, N=1000000",
+    "Laplace Potentials mat f32/M2L=BLAS, N=1000000 NVecs=10",
+    "Laplace Potentials mat f32/M2L=BLAS, N=1000000 NVecs=5",
+    "Multi Threaded Direct f32/N=100000",
+    "Multi Threaded Direct f32/N=20000",
+    "Multi Threaded Direct f32/N=500000",
+    "Multi Threaded Direct f64/N=100000",
+    "Multi Threaded Direct f64/N=20000",
+    "Multi Threaded Direct f64/N=500000",
+    "Single Threaded Direct f32/N=20000",
+    "Single Threaded Direct f32/N=5000",
+    "Single Threaded Direct f64/N=20000",
+    "Single Threaded Direct f64/N=5000",
 ]
 
 try:
@@ -64,7 +120,7 @@ except (ModuleNotFoundError, FileNotFoundError):
 
 root_dir = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(root_dir, "data.json")) as f:
-    data = json.load(f)
+    data = {i.strip(): j for i, j in json.load(f).items()}
 
 
 def to_seconds(time, unit):
@@ -195,6 +251,69 @@ plots = [
                 "assembly/Assembly of singular terms of 2048x2048 matrix"
             ], "Assembly of full 2048x2048 matrix", "#000000"
         )], "Bempp" if has_github else None, [("Bempp-cl 2048x2048", 0.128, "#000000")]
+    ],
+    [
+        "FMM", [PlotLine(
+            "F64 Potentials/M2L=BLAS digits=10",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=10, M2L",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=10, P2P",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=10",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=10, M2L",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=10, P2P",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=8",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=8, M2L",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=8, P2P",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=8",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=8, M2L",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=8, P2P",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=6",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=6, M2L",
+        ), PlotLine(
+            "F64 Potentials/M2L=BLAS digits=6, P2P",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=6",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=6, M2L",
+        ), PlotLine(
+            "F64 Potentials/M2L=FFT digits=6, P2P",
+        ), PlotLine(
+            "F32 Potentials/M2L=BLAS digits=4",
+        ), PlotLine(
+            "F32 Potentials/M2L=BLAS digits=4, M2L",
+        ), PlotLine(
+            "F32 Potentials/M2L=BLAS digits=4, P2P",
+        ), PlotLine(
+            "F32 Potentials/M2L=FFT digits=4",
+        ), PlotLine(
+            "F32 Potentials/M2L=FFT digits=4, M2L",
+        ), PlotLine(
+            "F32 Potentials/M2L=FFT digits=4, P2P",
+        ), PlotLine(
+            "F32 Potentials/M2L=BLAS digits=3",
+        ), PlotLine(
+            "F32 Potentials/M2L=BLAS digits=3, M2L",
+        ), PlotLine(
+            "F32 Potentials/M2L=BLAS digits=3, P2P",
+        ), PlotLine(
+            "F32 Potentials/M2L=FFT digits=3",
+        ), PlotLine(
+            "F32 Potentials/M2L=FFT digits=3, M2L",
+        ), PlotLine(
+            "F32 Potentials/M2L=FFT digits=3, P2P",
+        )], "Kifmm" if has_github else None, []
     ],
     # ["Laplace FMM", "Laplace ", "Kifmm" if has_github else None],
     # ["Helmholtz FMM", "Helmholtz", "Kifmm" if has_github else None],
